@@ -1,3 +1,15 @@
 spring:
   application:
     name: api-inventory
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/threadly_inventory
+    username: threadly
+    password: threadly
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true

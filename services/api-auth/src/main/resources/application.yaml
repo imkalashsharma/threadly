@@ -1,3 +1,15 @@
 spring:
   application:
     name: api-auth
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/threadly_auth
+    username: threadly
+    password: threadly
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true

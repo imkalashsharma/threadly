@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: threadly-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: threadly
+      POSTGRES_PASSWORD: threadly
+      POSTGRES_DB: threadly
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - threadly_postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d
+
+volumes:
+  threadly_postgres_data:

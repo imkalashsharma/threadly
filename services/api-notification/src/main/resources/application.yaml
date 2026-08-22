@@ -1,3 +1,15 @@
 spring:
   application:
     name: api-notification
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/threadly_notification
+    username: threadly
+    password: threadly
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
