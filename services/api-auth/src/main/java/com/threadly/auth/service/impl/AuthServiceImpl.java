@@ -1,23 +1,30 @@
 package com.threadly.auth.service.impl;
 
+import com.threadly.auth.dto.request.LoginRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
+import com.threadly.auth.dto.response.AuthResponse;
 import com.threadly.auth.dto.response.UserResponse;
 import com.threadly.auth.entity.User;
 import com.threadly.auth.entity.UserRole;
 import com.threadly.auth.entity.UserStatus;
+import com.threadly.auth.exception.InvalidCredentialsException;
 import com.threadly.auth.exception.UserAlreadyExistsException;
 import com.threadly.auth.repository.UserRepository;
+import com.threadly.auth.security.JwtService;
 import com.threadly.auth.service.AuthService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -40,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
+        log.info("User registration successful: userId = {}", savedUser.getId());
+
         return new UserResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),
@@ -48,6 +57,44 @@ public class AuthServiceImpl implements AuthService {
                 savedUser.getRole(),
                 savedUser.getStatus(),
                 savedUser.getCreatedAt()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        String email = request.email().trim().toLowerCase();
+
+        log.debug("Authentication attempt for email={}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("Authentication failed: user not found for email={}", email);
+
+                    return new InvalidCredentialsException("Invalid email or password.");
+                });
+
+        if(!user.getStatus().equals(UserStatus.ACTIVE)) {
+            log.warn("Authentication failed: inactive user, userId = {}, status = {}", user.getId(), user.getStatus());
+
+            throw new InvalidCredentialsException("Invalid email or password.");
+        }
+
+        if(!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            log.warn("Authentication failed: invalid password, userId = {}", user.getId());
+
+            throw new InvalidCredentialsException("Invalid email or password.");
+        }
+
+        String accessToken = jwtService.generateAccessToken(user);
+
+        log.info("Authentication successful: userId = {}", user.getId());
+
+        return new AuthResponse(
+                accessToken,
+                null,
+                "Bearer",
+                900
         );
     }
 }

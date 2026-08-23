@@ -1,5 +1,6 @@
 package com.threadly.auth.config;
 
+import com.threadly.auth.exception.InvalidCredentialsException;
 import com.threadly.auth.exception.UserAlreadyExistsException;
 import com.threadly.common.error.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex, HttpServletRequest request) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+            "INVALID_CREDENTIALS",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(response);
     }
 
