@@ -2,6 +2,7 @@ package com.threadly.auth.security;
 
 import com.threadly.auth.config.JwtProperties;
 import com.threadly.auth.entity.User;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,33 @@ public class JwtService {
                 .expiration(Date.from(expiration))
                 .signWith(key)
                 .compact();
+    }
+
+    public boolean isValid(String token) {
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
+
+            Jwts.parser()
+                    .verifyWith(key)
+                    .requireIssuer(jwtProperties.issuer())
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String extractUserId(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
+
+        return Jwts.parser()
+                .verifyWith(key)
+                .requireIssuer(jwtProperties.issuer())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 }
