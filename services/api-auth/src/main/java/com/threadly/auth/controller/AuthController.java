@@ -4,7 +4,6 @@ import com.threadly.auth.dto.request.LoginRequest;
 import com.threadly.auth.dto.request.RefreshTokenRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
 import com.threadly.auth.dto.response.LoginResponse;
-import com.threadly.auth.dto.response.RefreshTokenResponse;
 import com.threadly.auth.dto.response.UserResponse;
 import com.threadly.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -46,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(authService.refresh(request.refreshToken()));
     }
 }

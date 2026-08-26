@@ -4,7 +4,6 @@ import com.threadly.auth.config.JwtProperties;
 import com.threadly.auth.dto.request.LoginRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
 import com.threadly.auth.dto.response.LoginResponse;
-import com.threadly.auth.dto.response.RefreshTokenResponse;
 import com.threadly.auth.dto.response.UserResponse;
 import com.threadly.auth.entity.RefreshToken;
 import com.threadly.auth.entity.User;
@@ -105,14 +104,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public RefreshTokenResponse refresh(String rawRefreshToken) {
-        RefreshToken refreshToken = refreshTokenService.getRefreshToken(rawRefreshToken);
+    @Transactional
+    public LoginResponse refresh(String rawRefreshToken) {
+        RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(rawRefreshToken);
 
-        User user =  refreshToken.getUser();
+        User user =  oldRefreshToken.getUser();
+        String newRefreshToken = refreshTokenService.rotateRefreshToken(oldRefreshToken);
+
         String accessToken = jwtService.generateAccessToken(user);
 
-        return new RefreshTokenResponse(
+        return new LoginResponse(
                 accessToken,
+                newRefreshToken,
                 "Bearer",
                 jwtProperties.expiration() / 1000
         );

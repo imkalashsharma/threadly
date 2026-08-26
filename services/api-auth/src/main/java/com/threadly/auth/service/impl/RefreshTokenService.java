@@ -92,4 +92,10 @@ public class RefreshTokenService {
 
         return refreshToken;
     }
+
+    public String rotateRefreshToken(RefreshToken oldToken) {
+        oldToken.revoke();
+
+        return createRefreshToken(oldToken.getUser());
+    }
 }
