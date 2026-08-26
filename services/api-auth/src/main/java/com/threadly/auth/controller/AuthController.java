@@ -1,6 +1,7 @@
 package com.threadly.auth.controller;
 
 import com.threadly.auth.dto.request.LoginRequest;
+import com.threadly.auth.dto.request.LogoutRequest;
 import com.threadly.auth.dto.request.RefreshTokenRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
 import com.threadly.auth.dto.response.LoginResponse;
@@ -47,5 +48,12 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(authService.refresh(request.refreshToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void>  logout(@Valid @RequestBody LogoutRequest request) {
+        authService.logout(request.refreshToken());
+
+        return ResponseEntity.noContent().build();
     }
 }

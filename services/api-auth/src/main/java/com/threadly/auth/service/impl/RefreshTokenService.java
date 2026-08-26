@@ -95,7 +95,15 @@ public class RefreshTokenService {
 
     public String rotateRefreshToken(RefreshToken oldToken) {
         oldToken.revoke();
+        log.info("Old refresh token is revoked.");
 
         return createRefreshToken(oldToken.getUser());
+    }
+
+    public void revokeRefreshToken(String rawRefreshToken) {
+        RefreshToken refreshToken = getRefreshToken(rawRefreshToken);
+        refreshToken.revoke();
+
+        log.info("Refresh token successfully revoked.");
     }
 }

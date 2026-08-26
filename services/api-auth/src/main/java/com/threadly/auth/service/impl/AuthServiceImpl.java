@@ -120,4 +120,12 @@ public class AuthServiceImpl implements AuthService {
                 jwtProperties.expiration() / 1000
         );
     }
+
+    @Override
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        refreshTokenService.revokeRefreshToken(rawRefreshToken);
+
+        log.info("Logout successful.");
+    }
 }
