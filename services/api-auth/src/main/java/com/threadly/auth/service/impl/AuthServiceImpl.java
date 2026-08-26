@@ -1,9 +1,12 @@
 package com.threadly.auth.service.impl;
 
+import com.threadly.auth.config.JwtProperties;
 import com.threadly.auth.dto.request.LoginRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
-import com.threadly.auth.dto.response.AuthResponse;
+import com.threadly.auth.dto.response.LoginResponse;
+import com.threadly.auth.dto.response.RefreshTokenResponse;
 import com.threadly.auth.dto.response.UserResponse;
+import com.threadly.auth.entity.RefreshToken;
 import com.threadly.auth.entity.User;
 import com.threadly.auth.entity.UserRole;
 import com.threadly.auth.entity.UserStatus;
@@ -22,9 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private final JwtProperties jwtProperties;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
@@ -61,8 +66,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public AuthResponse login(LoginRequest request) {
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
 
         log.debug("Authentication attempt for email={}", email);
@@ -87,14 +92,29 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
 
         log.info("Authentication successful: userId = {}", user.getId());
 
-        return new AuthResponse(
+        return new LoginResponse(
                 accessToken,
-                null,
+                refreshToken,
                 "Bearer",
                 900
+        );
+    }
+
+    @Override
+    public RefreshTokenResponse refresh(String rawRefreshToken) {
+        RefreshToken refreshToken = refreshTokenService.getRefreshToken(rawRefreshToken);
+
+        User user =  refreshToken.getUser();
+        String accessToken = jwtService.generateAccessToken(user);
+
+        return new RefreshTokenResponse(
+                accessToken,
+                "Bearer",
+                jwtProperties.expiration() / 1000
         );
     }
 }

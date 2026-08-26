@@ -1,6 +1,6 @@
 package com.threadly.auth.dto.response;
 
-public record AuthResponse(
+public record LoginResponse(
    String accessToken,
    String refreshToken,
    String tokenType,

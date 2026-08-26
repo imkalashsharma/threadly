@@ -1,8 +1,10 @@
 package com.threadly.auth.controller;
 
 import com.threadly.auth.dto.request.LoginRequest;
+import com.threadly.auth.dto.request.RefreshTokenRequest;
 import com.threadly.auth.dto.request.RegisterRequest;
-import com.threadly.auth.dto.response.AuthResponse;
+import com.threadly.auth.dto.response.LoginResponse;
+import com.threadly.auth.dto.response.RefreshTokenResponse;
 import com.threadly.auth.dto.response.UserResponse;
 import com.threadly.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -30,10 +32,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        AuthResponse response = authService.login(request);
+        LoginResponse response = authService.login(request);
 
         return ResponseEntity.ok(response);
     }
@@ -41,5 +43,10 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<String> me(Authentication authentication) {
         return ResponseEntity.ok("Authenticated user: " + authentication.getName());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refresh(request.refreshToken()));
     }
 }
