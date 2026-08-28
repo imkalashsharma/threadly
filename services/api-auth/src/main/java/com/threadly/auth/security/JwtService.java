@@ -29,7 +29,7 @@ public class JwtService {
                 .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
                 .issuer(jwtProperties.issuer())
-                .claim("role", user.getRole().toString())
+                .claim("role", user.getRole().name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
                 .signWith(key)
