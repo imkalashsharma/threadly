@@ -14,7 +14,7 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateCategoryException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateCategoryException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleDuplicateCategoryException(DuplicateCategoryException ex, HttpServletRequest request) {
         ErrorResponse response = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.CONFLICT.value(),
