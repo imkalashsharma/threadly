@@ -13,3 +13,9 @@ spring:
 
   flyway:
     enabled: true
+
+security:
+  jwt:
+    secret: ${THREADLY_JWT_SECRET}
+    expiration: 900000
+    issuer: threadly-auth

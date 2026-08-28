@@ -16,7 +16,7 @@ import lombok.Setter;
                 )
         }
 )
-public class UserEntity extends BaseEntity{
+public class User extends BaseEntity{
     @Column(nullable = false, length = 255)
     private String email;
 
