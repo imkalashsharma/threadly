@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -48,5 +51,42 @@ public class CategoryServiceImpl implements CategoryService {
                 category.getCreatedAt(),
                 category.getUpdatedAt()
         );
+    }
+
+    @Override
+    public CategoryResponse getCategoryById(UUID id) {
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Category not found with id: {}", id);
+                    return new RuntimeException("Category not found with id " + id);
+                });
+
+        log.info("Category found with id: {}", id);
+
+        return new CategoryResponse(
+                existingCategory.getId(),
+                existingCategory.getName(),
+                existingCategory.getDescription(),
+                existingCategory.getStatus(),
+                existingCategory.getCreatedAt(),
+                existingCategory.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public List<CategoryResponse> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+
+        return categories
+                .stream()
+                .map(category -> new CategoryResponse(
+                        category.getId(),
+                        category.getName(),
+                        category.getDescription(),
+                        category.getStatus(),
+                        category.getCreatedAt(),
+                        category.getUpdatedAt()
+                ))
+                .toList();
     }
 }
