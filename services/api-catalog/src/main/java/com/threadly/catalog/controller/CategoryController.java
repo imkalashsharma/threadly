@@ -1,6 +1,7 @@
 package com.threadly.catalog.controller;
 
 import com.threadly.catalog.dto.request.CreateCategoryRequest;
+import com.threadly.catalog.dto.request.UpdateCategoryRequest;
 import com.threadly.catalog.dto.response.CategoryResponse;
 import com.threadly.catalog.service.CategoryService;
 import jakarta.validation.Valid;
@@ -43,5 +44,27 @@ public class CategoryController {
         CategoryResponse categoryResponse = categoryService.getCategoryById(id);
 
         return ResponseEntity.ok(categoryResponse);
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryRequest request){
+        CategoryResponse updatedCategoryResponse = categoryService.updateCategory(id, request);
+
+        return ResponseEntity
+                .ok(updatedCategoryResponse);
+    }
+
+    @DeleteMapping("/deactivate/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id){
+        categoryService.deactivateCategory(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/activate/{id}")
+    public ResponseEntity<Void> activateCategory(@PathVariable UUID id){
+        categoryService.activateCategory(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

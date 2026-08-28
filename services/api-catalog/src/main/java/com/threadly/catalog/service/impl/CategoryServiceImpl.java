@@ -1,6 +1,7 @@
 package com.threadly.catalog.service.impl;
 
 import com.threadly.catalog.dto.request.CreateCategoryRequest;
+import com.threadly.catalog.dto.request.UpdateCategoryRequest;
 import com.threadly.catalog.dto.response.CategoryResponse;
 import com.threadly.catalog.entity.Category;
 import com.threadly.catalog.entity.CategoryStatus;
@@ -88,5 +89,73 @@ public class CategoryServiceImpl implements CategoryService {
                         category.getUpdatedAt()
                 ))
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public CategoryResponse updateCategory(UUID id, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Category not found with id: {}", id);
+
+                    return new RuntimeException("Category not found with id " + id);
+                });
+
+        if(request.name() != null && !request.name().equals(category.getName()) && categoryRepository.existsByName(request.name())) {
+            throw new DuplicateCategoryException("Category already exists.");
+        }
+
+        if(request.name() != null)
+            category.setName(request.name());
+
+        if(request.description() != null)
+            category.setDescription(request.description());
+
+        if(request.status() != null)
+            category.setStatus(request.status());
+
+        // save updated category
+        category = categoryRepository.save(category);
+
+        log.info("Category updated successfully. Id: {}", category.getId());
+
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.getStatus(),
+                category.getCreatedAt(),
+                category.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public void deactivateCategory(UUID id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Category not found with id: {}", id);
+
+                    return new RuntimeException("Category not found with id " + id);
+                });
+
+        category.setStatus(CategoryStatus.DISABLED);
+        categoryRepository.save(category);
+
+        log.info("Category deactivated successfully. Id: {}", category.getId());
+    }
+
+    @Override
+    public void activateCategory(UUID id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Category not found with id: {}", id);
+
+                    return new RuntimeException("Category not found with id " + id);
+                });
+
+        category.setStatus(CategoryStatus.ACTIVE);
+        categoryRepository.save(category);
+
+        log.info("Category activated successfully. Id: {}", category.getId());
     }
 }

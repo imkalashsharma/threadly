@@ -1,6 +1,7 @@
 package com.threadly.catalog.service;
 
 import com.threadly.catalog.dto.request.CreateCategoryRequest;
+import com.threadly.catalog.dto.request.UpdateCategoryRequest;
 import com.threadly.catalog.dto.response.CategoryResponse;
 
 import java.util.List;
@@ -12,4 +13,10 @@ public interface CategoryService {
     CategoryResponse getCategoryById(UUID id);
 
     List<CategoryResponse> getAllCategories();
+
+    CategoryResponse updateCategory(UUID id, UpdateCategoryRequest request);
+
+    void deactivateCategory(UUID id);
+
+    void activateCategory(UUID id);
 }
