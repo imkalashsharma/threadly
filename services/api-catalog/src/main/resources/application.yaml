@@ -13,3 +13,11 @@ spring:
 
   flyway:
     enabled: true
+
+server:
+  port: 8081
+
+security:
+  jwt:
+    secret: ${THREADLY_JWT_SECRET}
+    issuer: threadly-auth
